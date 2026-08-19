@@ -1,8 +1,14 @@
 # Commercial Decision Intelligence Report
 
-An end-to-end commercial analytics portfolio project built to demonstrate how fragmented distributor sales and inventory files can be transformed into a governed decision-intelligence model using **PostgreSQL/Supabase, SQL, Power BI, dimensional modelling and DAX**.
+An end-to-end commercial analytics portfolio project showing how fragmented distributor sales and inventory files can be transformed into a governed decision-intelligence model using **PostgreSQL/Supabase, SQL, Power BI, dimensional modelling and DAX**.
 
 > **Data note:** All data in this project is synthetic and fictional. The solution simulates a realistic FMCG/beverage commercial analytics environment without exposing confidential business data.
+
+## Dashboard Preview
+
+![Executive Overview](screenshots/01-executive-overview.png)
+
+The executive page surfaces FY sales, YoY growth, case volume, stock cover, value-led growth commentary, sales trend, brand performance and inventory position in a single leadership-facing view.
 
 ## Business Problem
 
@@ -99,7 +105,7 @@ The finished report identified the following synthetic business story:
 - **Top five customer contribution:** approximately 3%, indicating low customer concentration risk
 - **Largest channel:** Retail
 - **Largest geographic market:** Gauteng
-- **Latest stock cover:** approximately 7.5 months versus a 3-6 month healthy range
+- **Latest stock cover:** approximately 7.5 months versus a 3–6 month healthy range
 - **Excess-stock SKUs:** 13
 - **Healthy SKUs:** 7
 - **Low-stock SKUs:** 0
@@ -112,15 +118,27 @@ Protect value-led commercial growth while releasing working capital through targ
 ## Report Pages
 
 ### 1. Executive Overview
+
+![Executive Overview](screenshots/01-executive-overview.png)
+
 Leadership-facing view of sales, YoY growth, volume, stock cover, dynamic insights, sales trend, brand performance and inventory position.
 
 ### 2. Sales & Growth
+
+![Sales and Growth](screenshots/02-sales-and-growth.png)
+
 Monthly performance, prior-year comparisons, brand/product contribution, sales mix and value per case.
 
 ### 3. Customer Performance
+
+![Customer Performance](screenshots/03-customer-performance.png)
+
 Customer ranking, concentration, channel performance, geographic performance and cumulative/Pareto analysis.
 
 ### 4. Inventory & Supply
+
+![Inventory and Supply](screenshots/04-inventory-and-supply.png)
+
 Latest stock position, stock cover, excess/shortfall cases, SKU health classifications, arrivals/depletions trends and stock-versus-sales decision support.
 
 ## Repository Structure
@@ -141,6 +159,10 @@ Latest stock position, stock cover, excess/shortfall cases, SKU health classific
 │   ├── data-model.md
 │   └── business-findings.md
 └── screenshots/
+    ├── 01-executive-overview.png
+    ├── 02-sales-and-growth.png
+    ├── 03-customer-performance.png
+    ├── 04-inventory-and-supply.png
     └── README.md
 ```
 
@@ -151,7 +173,7 @@ Latest stock position, stock cover, excess/shortfall cases, SKU health classific
 - PostgreSQL views and relational modelling
 - Star-schema design
 - Surrogate keys and foreign keys
-- Fiscal-calendar modelling (April-March)
+- Fiscal-calendar modelling (April–March)
 - Power BI semantic modelling
 - DAX time intelligence
 - Semi-additive inventory measures
