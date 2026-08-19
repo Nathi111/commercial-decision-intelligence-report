@@ -10,6 +10,12 @@ An end-to-end commercial analytics portfolio project showing how fragmented dist
 
 The executive page surfaces FY sales, YoY growth, case volume, stock cover, value-led growth commentary, sales trend, brand performance and inventory position in a single leadership-facing view.
 
+## Power BI Report Access
+
+The Power BI report file (`.pbix`) is not publicly distributed through this repository.
+
+If you would like a copy of the report for portfolio review, demonstration, or technical evaluation, please connect with me on [LinkedIn](https://www.linkedin.com/in/nkosinathi-makhanya-26087b166/).
+
 ## Business Problem
 
 Commercial teams often receive sales, customer, product and inventory information from multiple distributors in different formats. This makes it difficult to answer decision questions consistently:
@@ -189,4 +195,5 @@ The prior-year synthetic sales history was generated from the current-year patte
 ## Author
 
 **Nkosinathi Makhanya**  
-Data Analytics | Business Intelligence | Decision Intelligence
+Data Analytics | Business Intelligence | Decision Intelligence  
+[Connect with me on LinkedIn](https://www.linkedin.com/in/nkosinathi-makhanya-26087b166/)
