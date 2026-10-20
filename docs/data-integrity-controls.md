@@ -25,7 +25,7 @@ PostgreSQL database**, execute the files with `psql -v ON_ERROR_STOP=1`:
 5. `sql/05_assert_reconciliation.sql` — **postload gate**, exit nonzero on mismatch
 
 The preflight rejects missing sales invoice numbers, missing customer/product/date
-dimension mappings, invalid or negative inventory balances and inconsistent
+dimension mappings, invalid or negative inventory balances, duplicate inventory snapshot keys and inconsistent
 sale/return signs. The postload gate rejects any stage-to-fact loss, multiplication
 or changed case/revenue/snapshot totals by distributor and period.
 
@@ -35,6 +35,7 @@ or changed case/revenue/snapshot totals by distributor and period.
   **Nonzero exclusions do not automatically fail:** the synthetic source contains
   deliberate invalid rows. Review them against the business rules and retain a
   source-file audit separately when applying to real data.
+- `SELECT * FROM dq_inventory_source_to_stage;` shows raw/staged snapshot counts.
 - `SELECT * FROM dq_sales_unmapped_keys;` identifies missing sales dimensions.
 - `SELECT * FROM dq_inventory_unmapped_keys;` identifies missing inventory dimensions.
 - `SELECT * FROM dq_sales_repeated_line_candidates;` highlights repeated
@@ -61,7 +62,7 @@ or changed case/revenue/snapshot totals by distributor and period.
 `tests/run_sql_quality_tests.sh` creates disposable PostgreSQL databases to
 assert: (a) valid records pass, (b) identical source lines survive,
 (c) signed credits reduce net sales and cases, (d) excluded raw rows are counted,
-(e) missing customer mappings and negative stock fail preflight,
+(e) missing customer mappings, negative stock and duplicate inventory snapshots fail preflight,
 (f) changed fact values fail postload reconciliation.
 
 In GitHub, `.github/workflows/sql-quality.yml` runs the tests in an ephemeral
