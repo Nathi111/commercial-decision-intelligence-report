@@ -23,6 +23,7 @@ PostgreSQL database**, execute the files with `psql -v ON_ERROR_STOP=1`:
 3. `sql/03_fact_tables.sql` — **preflight gate** then build facts
 4. `sql/04_reconciliation_checks.sql` — source/stage and stage/fact audit views
 5. `sql/05_assert_reconciliation.sql` — **postload gate**, exit nonzero on mismatch
+6. `sql/06_full_dataset_audit.sql` — **read-only complete-dataset KPI bridge** (must be run with the complete raw source files)
 
 The preflight rejects missing sales invoice numbers, missing customer/product/date
 dimension mappings, invalid or negative inventory balances, duplicate inventory snapshot keys and inconsistent
@@ -67,3 +68,8 @@ assert: (a) valid records pass, (b) identical source lines survive,
 
 In GitHub, `.github/workflows/sql-quality.yml` runs the tests in an ephemeral
 Postgres 16 container on pull requests and main.
+
+## Full reconciliation receipt
+See [Full-dataset reconciliation status](full-reconciliation-status.md). Automated
+fixture checks passed, but original source records and Power BI output are not
+accessible for full-data certification yet.
