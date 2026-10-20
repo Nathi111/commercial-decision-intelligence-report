@@ -5,6 +5,9 @@ BEGIN
     IF EXISTS (SELECT 1 FROM dq_sales_source_to_stage WHERE excluded_source_rows < 0) THEN
         RAISE EXCEPTION 'Reconciliation failed: staging has more sales rows than raw source';
     END IF;
+    IF EXISTS (SELECT 1 FROM dq_inventory_source_to_stage WHERE excluded_source_rows < 0) THEN
+        RAISE EXCEPTION 'Reconciliation failed: inventory staging exceeds source rows';
+    END IF;
     IF EXISTS (SELECT 1 FROM dq_sales_unmapped_keys) THEN
         RAISE EXCEPTION 'Reconciliation failed: sales dimension orphans';
     END IF;
@@ -22,5 +25,6 @@ END
 $quality$;
 
 SELECT * FROM dq_sales_source_to_stage ORDER BY distributor_code;
+SELECT * FROM dq_inventory_source_to_stage ORDER BY distributor_code;
 SELECT * FROM dq_sales_fact_reconciliation ORDER BY distributor_code, sale_date;
 SELECT * FROM dq_inventory_fact_reconciliation ORDER BY distributor_code, snapshot_date;
