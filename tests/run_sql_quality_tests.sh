@@ -30,6 +30,7 @@ base quality_happy
 psql -X -v ON_ERROR_STOP=1 -d quality_happy -f sql/03_fact_tables.sql >/dev/null
 psql -X -v ON_ERROR_STOP=1 -d quality_happy -f sql/04_reconciliation_checks.sql >/dev/null
 psql -X -v ON_ERROR_STOP=1 -d quality_happy -f sql/05_assert_reconciliation.sql >/dev/null
+psql -X -v ON_ERROR_STOP=1 -d quality_happy -f sql/06_full_dataset_audit.sql >/dev/null
 psql -X -v ON_ERROR_STOP=1 -d quality_happy -f tests/assert_happy_path.sql >/dev/null
 echo 'PASS: valid sales, credit notes, repeated lines and source-gap reporting'
 
