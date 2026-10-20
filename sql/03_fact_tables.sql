@@ -1,10 +1,61 @@
 -- Commercial Decision Intelligence Report
 -- Fact tables
 
+-- Fail closed before any fact is built: dimension joins must never silently remove rows.
+-- Run AFTER dimensions have been created and BEFORE loading facts.
+DO $quality$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM stg_sales) THEN
+        RAISE EXCEPTION 'Data integrity preflight failed: sales staging is empty';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM stg_sales
+        WHERE invoice_no IS NULL OR btrim(invoice_no) = ''
+           OR transaction_date IS NULL
+           OR quantity_cases = 0 OR net_sales_zar = 0
+           OR sign(quantity_cases) <> sign(net_sales_zar)
+    ) THEN
+        RAISE EXCEPTION 'Data integrity preflight failed: invalid staged sale/credit note';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM stg_sales s
+        LEFT JOIN dim_date d ON d.date = s.transaction_date
+        LEFT JOIN dim_customer c ON c.customer_code = s.customer_code
+        LEFT JOIN dim_product p ON p.product_code = s.product_code
+        WHERE d.date IS NULL OR c.customer_id IS NULL OR p.product_id IS NULL
+    ) THEN
+        RAISE EXCEPTION 'Data integrity preflight failed: unmapped sales date/customer/product; run the orphan-key diagnostics';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1
+        FROM stg_inventory i
+        LEFT JOIN dim_date d ON d.date = i.month_end
+        LEFT JOIN dim_product p ON p.product_code = i.product_code
+        WHERE d.date IS NULL OR p.product_id IS NULL
+    ) THEN
+        RAISE EXCEPTION 'Data integrity preflight failed: unmapped inventory date/product';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM stg_inventory
+        WHERE opening_stock_cases IS NULL OR arrivals_cases IS NULL
+           OR depletions_cases IS NULL OR closing_stock_cases IS NULL
+           OR closing_stock_cases < 0
+    ) THEN
+        RAISE EXCEPTION 'Data integrity preflight failed: invalid inventory quantity';
+    END IF;
+END
+$quality$;
+
+
 create table fact_sales as
 select
     row_number() over (
-        order by s.transaction_date, s.invoice_no, s.customer_code, s.product_code
+        order by s.transaction_date, s.distributor_code, s.invoice_no, s.customer_code, s.product_code
     ) as sales_id,
     d.date,
     c.customer_id,
@@ -52,7 +103,7 @@ inner join dim_date d
     on i.month_end = d.date
 inner join dim_product p
     on i.product_code = p.product_code
-where i.closing_stock_cases >= 0;
+; -- negative balances fail the preflight instead of being silently discarded
 
 alter table fact_inventory add primary key (inventory_id);
 alter table fact_inventory
