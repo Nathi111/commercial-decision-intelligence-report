@@ -42,6 +42,14 @@ BEGIN
 
     IF EXISTS (
         SELECT 1 FROM stg_inventory
+        GROUP BY month_end, distributor_code, product_code
+        HAVING count(*) > 1
+    ) THEN
+        RAISE EXCEPTION 'Data integrity preflight failed: duplicate inventory snapshot grain';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM stg_inventory
         WHERE opening_stock_cases IS NULL OR arrivals_cases IS NULL
            OR depletions_cases IS NULL OR closing_stock_cases IS NULL
            OR closing_stock_cases < 0
