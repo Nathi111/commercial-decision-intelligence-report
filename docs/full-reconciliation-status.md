@@ -1,9 +1,9 @@
 # Full-dataset reconciliation evidence (2026-10-20)
 
-**Status: BLOCKED FOR FULL-DATA CERTIFICATION.** Automated regression and
+**Status: BLOCKED FOR FULL-DATA CERTIFICATION due to connector scope.** Automated regression and
 read-only full-audit query smoke checks passed against isolated **synthetic
-fixture data**, but the original portfolio source files and connected live
-commercial model were not accessible for an independent full-run.
+fixture data**. The user confirms original synthetic portfolio data **exists on Supabase**,
+but its project identifier is not visible through the Supabase connection available to this session.
 
 ## Environment and evidence
 - PR: https://github.com/Nathi111/commercial-decision-intelligence-report/pull/1
@@ -12,8 +12,14 @@ commercial model were not accessible for an independent full-run.
 - Latest observed CI run: https://github.com/Nathi111/commercial-decision-intelligence-report/actions/runs/39426005921
 - Repository `data/README.md` explicitly states the original raw CSV files
   are not committed by default.
-- Available connected Supabase/Neon projects do not include a commercial
-  analytics dataset project. Do not access unrelated application datasets.
+- Supabase projects currently exposed to the connector are `muzec`,
+  `spenvite`, `propertyman`, `Freeinven`, and `freeinvent-staging`.
+  The active Freeinvent projects have no commercial `raw_*`, `fact_*` or
+  `dim_*` tables in any non-system schemas; the other three projects
+  were inactive and metadata queries timed out.
+- The user confirms the portfolio source data was originally loaded into
+  Supabase. Locate/authorize the specific portfolio project or account
+  before treating the data as unavailable. Do not access unrelated application data.
 
 ## Validated on the isolated fixture
 - 6 raw sales records (Distributor A: 4, B: 1, C: 1).
@@ -54,9 +60,13 @@ SKU-level excess. The new read-only audit outputs both interpretations.
 Until compared with the original Power BI file, mark this KPI **UNVERIFIED**.
 
 ## How to close the blocker (no production write access required)
-1. Obtain the six original synthetic source datasets matching the SQL raw tables:
-   Distributor A/B/C sales, customer master, product master, inventory.
-   An authorized, sanitized full database export is also acceptable.
+1. Identify and connect the correct Supabase project (request only its
+   **dashboard project ref/name, never credentials**). The user confirms
+   that it contains the synthetic distributor sales, customer/product
+   master and inventory tables. The tables may still have their original
+   uploaded CSV-style names, so inspect the catalog before executing SQL.
+   If the correct project cannot be connected, use an authorized sanitized
+   database export as a fallback.
 2. Restore/load into an **isolated non-production PostgreSQL database**.
 3. Execute scripts `sql/01_...` through `sql/05_...` with
    `psql -X -v ON_ERROR_STOP=1`, investigate source exclusions, then run
