@@ -23,6 +23,25 @@ SELECT r.distributor_code, r.raw_rows,
 FROM source_counts r
 LEFT JOIN stage_counts s USING (distributor_code);
 
+-- Inventory also needs visible source exclusions; a repeated source snapshot
+-- cannot be silently discarded or counted twice.
+CREATE OR REPLACE VIEW dq_inventory_source_to_stage AS
+WITH source_counts AS (
+    SELECT CASE WHEN upper(trim(distributor_code)) = 'DIST-B'
+                THEN 'DISTB' ELSE upper(trim(distributor_code)) END AS distributor_code,
+           count(*)::bigint AS raw_rows
+    FROM raw_inventory GROUP BY 1
+),
+stage_counts AS (
+    SELECT distributor_code, count(*)::bigint AS staged_rows
+    FROM stg_inventory GROUP BY distributor_code
+)
+SELECT r.distributor_code, r.raw_rows,
+       coalesce(s.staged_rows, 0) AS staged_rows,
+       r.raw_rows - coalesce(s.staged_rows, 0) AS excluded_source_rows
+FROM source_counts r
+LEFT JOIN stage_counts s USING (distributor_code);
+
 -- Preflight diagnostics: query directly after a failed fact build.
 CREATE OR REPLACE VIEW dq_sales_unmapped_keys AS
 SELECT s.distributor_code, s.invoice_no, s.transaction_date,
