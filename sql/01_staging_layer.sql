@@ -1,10 +1,12 @@
+-- Preserve repeated source lines; credits/returns are signed negative quantity and value.
+-- Deduplication requires a reliable invoice line ID, not SELECT DISTINCT.
 -- Commercial Decision Intelligence Report
 -- Staging layer
 -- PostgreSQL / Supabase
 
 -- Distributor A
 create or replace view stg_distributor_a_sales as
-select distinct
+select
     trim(invoice_no) as invoice_no,
     transaction_date::date as transaction_date,
     upper(trim(customer_code)) as customer_code,
@@ -16,13 +18,14 @@ from raw_distributor_a_sales
 where customer_code is not null
   and product_code is not null
   and quantity_cases is not null
-  and quantity_cases::numeric > 0
+  and quantity_cases::numeric <> 0
   and net_sales_zar is not null
-  and net_sales_zar::numeric > 0;
+  and net_sales_zar::numeric <> 0
+  and sign(quantity_cases::numeric) = sign(net_sales_zar::numeric);
 
 -- Distributor B
 create or replace view stg_distributor_b_sales as
-select distinct
+select
     trim("Invoice") as invoice_no,
     to_date(trim("Txn_Date"), 'DD/MM/YYYY') as transaction_date,
     upper(trim("Outlet_ID")) as customer_code,
@@ -34,12 +37,14 @@ from raw_distributor_b_sales
 where "Outlet_ID" is not null
   and "SKU" is not null
   and "Sales_Qty" is not null
-  and "Sales_Qty"::numeric > 0
-  and "Net_Value" is not null;
+  and "Sales_Qty"::numeric <> 0
+  and "Net_Value" is not null
+  and replace(replace(trim("Net_Value"), 'R ', ''), ',', '')::numeric <> 0
+  and sign("Sales_Qty"::numeric) = sign(replace(replace(trim("Net_Value"), 'R ', ''), ',', '')::numeric);
 
 -- Distributor C
 create or replace view stg_distributor_c_sales as
-select distinct
+select
     trim(document_id) as invoice_no,
     to_date(trim(date_sold), 'DD-Mon-YYYY') as transaction_date,
     upper(trim(account_number)) as customer_code,
@@ -56,8 +61,10 @@ where account_number is not null
   and trim(account_number) <> ''
   and item_number is not null
   and cases_sold is not null
-  and cases_sold::numeric > 0
-  and sales_value is not null;
+  and cases_sold::numeric <> 0
+  and sales_value is not null
+  and sales_value::numeric <> 0
+  and sign(cases_sold::numeric) = sign(sales_value::numeric);
 
 -- Consolidated sales staging view
 create or replace view stg_sales as
