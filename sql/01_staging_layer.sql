@@ -1,5 +1,6 @@
 -- Preserve repeated source lines; credits/returns are signed negative quantity and value.
 -- Deduplication requires a reliable invoice line ID, not SELECT DISTINCT.
+-- Duplicate inventory snapshot keys are rejected by the fact preflight.
 -- Commercial Decision Intelligence Report
 -- Staging layer
 -- PostgreSQL / Supabase
@@ -130,7 +131,7 @@ where product_code is not null
 
 -- Inventory
 create or replace view stg_inventory as
-select distinct
+select
     to_date(trim(month_end), 'YYYY/MM/DD') as month_end,
     case
         when upper(trim(distributor_code)) = 'DIST-B' then 'DISTB'
