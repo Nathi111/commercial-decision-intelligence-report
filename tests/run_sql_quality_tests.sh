@@ -41,6 +41,11 @@ base quality_invalid_inventory
 psql -X -v ON_ERROR_STOP=1 -d quality_invalid_inventory -c   "UPDATE raw_inventory SET closing_stock_cases = -1 WHERE distributor_code = 'DISTA'" >/dev/null
 expect_failure quality_invalid_inventory sql/03_fact_tables.sql 'invalid inventory quantity'
 
+base quality_duplicate_inventory
+psql -X -v ON_ERROR_STOP=1 -d quality_duplicate_inventory -c \
+  "INSERT INTO raw_inventory SELECT * FROM raw_inventory WHERE distributor_code = 'DISTA'" >/dev/null
+expect_failure quality_duplicate_inventory sql/03_fact_tables.sql 'duplicate inventory snapshot grain'
+
 psql -X -v ON_ERROR_STOP=1 -d quality_happy -c   'UPDATE fact_sales SET net_sales_zar = net_sales_zar + 1 WHERE sales_id = 1' >/dev/null
 expect_failure quality_happy sql/05_assert_reconciliation.sql 'staged sales do not balance to fact_sales'
 echo 'PASS: all PostgreSQL data integrity regression scenarios'
